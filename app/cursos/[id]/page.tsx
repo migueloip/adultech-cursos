@@ -17,7 +17,7 @@ import {
   type CursoPaso,
 } from "@/lib/supabase"
 import { notFound } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 
 async function getCurso(id: string): Promise<Curso | null> {
   const cursoId = Number.parseInt(id)
@@ -63,19 +63,20 @@ async function getCursoPasos(cursoId: string): Promise<CursoPaso[]> {
   }
 }
 
-export default function CursoPage({ params }: { params: { id: string } }) {
+export default function CursoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [curso, setCurso] = useState<Curso | null>(null)
   const [pasos, setPasos] = useState<CursoPaso[]>([])
   const [loading, setLoading] = useState(true)
   const [completedSteps, setCompletedSteps] = useState<{ [key: number]: boolean }>({})
 
-  const courseProgressKey = `adultech-curso-${params.id}-progress`
+  const courseProgressKey = `adultech-curso-${id}-progress`
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const fetchedCurso = await getCurso(params.id)
-      const fetchedPasos = await getCursoPasos(params.id)
+      const fetchedCurso = await getCurso(id)
+      const fetchedPasos = await getCursoPasos(id)
       setCurso(fetchedCurso)
       setPasos(fetchedPasos)
 
@@ -87,7 +88,7 @@ export default function CursoPage({ params }: { params: { id: string } }) {
       setLoading(false)
     }
     fetchData()
-  }, [params.id])
+  }, [id])
 
   useEffect(() => {
     // Save progress to local storage whenever completedSteps changes
@@ -133,7 +134,7 @@ export default function CursoPage({ params }: { params: { id: string } }) {
       {/* Header */}
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-orange-200 dark:border-slate-700">
         <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
+          <nav className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
               <Image
                 src="/images/adultech-logo.png"
@@ -142,17 +143,17 @@ export default function CursoPage({ params }: { params: { id: string } }) {
                 height={60}
                 className="rounded-lg"
               />
-              <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
             </div>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600"
+              className="text-base sm:text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 w-full sm:w-auto"
             >
-              <Link href="/cursos">
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Volver a Cursos
+              <Link href="/cursos" className="flex items-center justify-center">
+                <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="whitespace-nowrap">Volver a Cursos</span>
               </Link>
             </Button>
           </nav>
@@ -182,7 +183,7 @@ export default function CursoPage({ params }: { params: { id: string } }) {
               <CardTitle className="text-2xl text-center text-slate-800 dark:text-white">Video Tutorial</CardTitle>
             </CardHeader>
             <CardContent>
-              <VideoPlayer courseId={params.id} videoUrl={curso.video_url} />
+              <VideoPlayer courseId={id} videoUrl={curso.video_url} />
             </CardContent>
           </Card>
 
@@ -260,7 +261,7 @@ export default function CursoPage({ params }: { params: { id: string } }) {
               variant="outline"
               className="text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600"
             >
-              <Link href={`/cursos/${params.id}`}>
+              <Link href={`/cursos/${id}`}>
                 <RotateCcw className="mr-2 h-5 w-5" />
                 Repetir Curso
               </Link>

@@ -86,12 +86,12 @@ export default function HomePage() {
               <Button
                 asChild
                 size="lg"
-                className="text-2xl md:text-3xl px-12 py-8 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl px-6 sm:px-8 md:px-12 py-6 md:py-8 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 shadow-2xl transform hover:scale-105 transition-all duration-300 w-full max-w-md mx-auto"
               >
-                <Link href="/cursos">
-                  <BookOpen className="mr-4 h-8 w-8" />
-                  Comenzar a Aprender
-                  <ArrowRight className="ml-4 h-8 w-8" />
+                <Link href="/cursos" className="flex items-center justify-center">
+                  <BookOpen className="mr-2 sm:mr-3 md:mr-4 h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" />
+                  <span className="whitespace-nowrap">Comenzar a Aprender</span>
+                  <ArrowRight className="ml-2 sm:ml-3 md:ml-4 h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" />
                 </Link>
               </Button>
             </div>

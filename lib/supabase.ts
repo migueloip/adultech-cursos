@@ -17,38 +17,26 @@ if (isSupabaseConfigured) {
   supabase = {
     from: () => ({
       select: () => ({
-        order: () => ({
-          then: (callback: any) => callback({ data: [], error: null }),
-        }),
+        order: () => Promise.resolve({ data: [], error: null }),
         eq: () => ({
-          single: () => ({
-            then: (callback: any) => callback({ data: null, error: { message: "No database" } }),
-          }),
-          order: () => ({
-            then: (callback: any) => callback({ data: [], error: null }),
-          }),
+          single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
+          order: () => Promise.resolve({ data: [], error: null }),
         }),
       }),
       insert: () => ({
         select: () => ({
-          single: () => ({
-            then: (callback: any) => callback({ data: null, error: { message: "No database" } }),
-          }),
+          single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
         }),
       }),
       update: () => ({
         eq: () => ({
           select: () => ({
-            single: () => ({
-              then: (callback: any) => callback({ data: null, error: { message: "No database" } }),
-            }),
+            single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
           }),
         }),
       }),
       delete: () => ({
-        eq: () => ({
-          then: (callback: any) => callback({ error: null }),
-        }),
+        eq: () => Promise.resolve({ error: null }),
       }),
     }),
   }
@@ -205,7 +193,7 @@ export const pasosRespaldo: { [key: number]: CursoPaso[] } = {
       curso_id: 2,
       orden: 3,
       titulo: "Paso 3: Realizar la llamada",
-      descripción: "Presiona el botón verde con el ícono de teléfono para iniciar la llamada.",
+      descripcion: "Presiona el botón verde con el ícono de teléfono para iniciar la llamada.",
       imagen_url: "/placeholder.svg?height=300&width=400&text=Botón+llamar",
       created_at: new Date().toISOString(),
     },
