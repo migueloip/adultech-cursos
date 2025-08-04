@@ -38,17 +38,32 @@ export function CourseProgressIndicator({ courseId, totalSteps }: CourseProgress
   const progressPercentage = (completedStepsCount / totalSteps) * 100
 
   return (
-    <div className="mt-4 text-sm text-slate-600 dark:text-slate-300 flex items-center justify-center">
-      {progressPercentage === 100 ? (
-        <span className="text-green-600 dark:text-green-400 font-semibold flex items-center">
-          <CheckCircle className="h-4 w-4 mr-1" />
-          Completado
-        </span>
-      ) : (
-        <span>
+    <div className="mt-4 space-y-2">
+      {/* Barra de progreso visual */}
+      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${progressPercentage}%` }}
+        />
+      </div>
+      
+      {/* Texto del progreso */}
+      <div className="text-sm text-slate-600 dark:text-slate-300 flex items-center justify-between">
+        <span className="font-medium">
           Progreso: {completedStepsCount}/{totalSteps} pasos
         </span>
-      )}
+        
+        {progressPercentage === 100 ? (
+          <span className="text-green-600 dark:text-green-400 font-semibold flex items-center">
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Completado
+          </span>
+        ) : (
+          <span className="text-blue-600 dark:text-blue-400 font-semibold">
+            {Math.round(progressPercentage)}%
+          </span>
+        )}
+      </div>
     </div>
   )
 }

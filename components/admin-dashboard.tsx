@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Edit, Trash2, Save, X, Home, AlertTriangle } from "lucide-react"
+import { Plus, Edit, Trash2, Save, X, Home, AlertTriangle, Eye } from "lucide-react"
 import { supabase, isSupabaseConfigured, cursosRespaldo, type Curso } from "@/lib/supabase"
 
 export function AdminDashboard() {
@@ -19,6 +19,7 @@ export function AdminDashboard() {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingCurso, setEditingCurso] = useState<Curso | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showPreview, setShowPreview] = useState(false)
 
   const [formData, setFormData] = useState({
     titulo: "",
@@ -162,7 +163,11 @@ export function AdminDashboard() {
       video_url: curso.video_url || "",
       pasos:
         pasos && pasos.length > 0
-          ? pasos.map((p) => ({ titulo: p.titulo, descripcion: p.descripcion, imagen_url: p.imagen_url || "" }))
+          ? pasos.map((p: { titulo: string; descripcion: string; imagen_url: string }) => ({ 
+              titulo: p.titulo, 
+              descripcion: p.descripcion, 
+              imagen_url: p.imagen_url || "" 
+            }))
           : [{ titulo: "", descripcion: "", imagen_url: "" }],
     })
     setShowCreateForm(true)
@@ -483,9 +488,19 @@ export function AdminDashboard() {
                   </Button>
                   <Button
                     type="button"
+                    onClick={() => setShowPreview(!showPreview)}
+                    variant="outline"
+                    className="bg-transparent border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white"
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    {showPreview ? "Ocultar Preview" : "Ver Preview"}
+                  </Button>
+                  <Button
+                    type="button"
                     onClick={() => {
                       setShowCreateForm(false)
                       setEditingCurso(null)
+                      setShowPreview(false)
                       setFormData({
                         titulo: "",
                         descripcion: "",
@@ -504,6 +519,105 @@ export function AdminDashboard() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Preview del Curso */}
+        {showCreateForm && showPreview && (
+          <Card className="mb-8 bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-600">
+            <CardHeader>
+              <CardTitle className="text-white">Preview del Curso</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Preview de la tarjeta del curso */}
+                <div>
+                  <h3 className="text-white text-lg font-semibold mb-4">Cómo se verá en la lista de cursos:</h3>
+                  <Card className={`p-6 border-2 ${formData.color} transition-all duration-200 hover:shadow-lg cursor-pointer max-w-md`}>
+                    <CardContent className="p-0">
+                      <div className="flex items-center space-x-4">
+                        <div className={`p-3 rounded-lg ${formData.color.replace('border-', 'bg-').replace('-300', '-200')}`}>
+                          {/* Simulación del ícono */}
+                          <div className={`w-8 h-8 ${formData.icon_color} flex items-center justify-center font-bold`}>
+                            {formData.icono.charAt(0)}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            {formData.titulo || "Título del curso"}
+                          </h3>
+                          <p className="text-gray-600 text-sm">
+                            {formData.descripcion || "Descripción del curso"}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Preview de los pasos */}
+                {formData.pasos.some(paso => paso.titulo) && (
+                  <div>
+                    <h3 className="text-white text-lg font-semibold mb-4">Pasos del curso:</h3>
+                    <div className="space-y-4">
+                      {formData.pasos.map((paso, index) => (
+                        paso.titulo && (
+                          <Card key={index} className="bg-slate-700 border-slate-600">
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-4">
+                                <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                                  {index + 1}
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="text-white font-medium mb-2">{paso.titulo}</h4>
+                                  {paso.descripcion && (
+                                    <p className="text-slate-300 text-sm">{paso.descripcion}</p>
+                                  )}
+                                  {paso.imagen_url && (
+                                    <div className="mt-2">
+                                      <span className="text-slate-400 text-xs">Imagen: {paso.imagen_url}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Información adicional */}
+                <div className="bg-slate-700 p-4 rounded-lg">
+                  <h4 className="text-white font-medium mb-2">Información técnica:</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-400">Ícono:</span>
+                      <span className="text-white ml-2">{formData.icono}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400">Color:</span>
+                      <span className="text-white ml-2">{formData.color}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400">Color del ícono:</span>
+                      <span className="text-white ml-2">{formData.icon_color}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400">Total de pasos:</span>
+                      <span className="text-white ml-2">{formData.pasos.filter(p => p.titulo).length}</span>
+                    </div>
+                  </div>
+                  {formData.video_url && (
+                    <div className="mt-2">
+                      <span className="text-slate-400">Video URL:</span>
+                      <span className="text-white ml-2 break-all">{formData.video_url}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
