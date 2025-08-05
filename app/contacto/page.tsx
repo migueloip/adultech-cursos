@@ -261,8 +261,10 @@ export default function ContactoPage() {
                         setTurnstileToken(null)
                       }}
                       onLoad={() => console.log('Turnstile loaded')}
-                      theme="auto"
-                      size="normal"
+                      options={{
+                        theme: "auto",
+                        size: "normal"
+                      }}
                     />
                   </div>
 
