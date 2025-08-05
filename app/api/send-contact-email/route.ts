@@ -6,16 +6,53 @@ interface ContactFormData {
   phone?: string
   relationship?: string
   message: string
+  turnstileToken?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone, relationship, message }: ContactFormData = await request.json()
+    const { name, email, phone, relationship, message, turnstileToken }: ContactFormData = await request.json()
 
     // Validate required fields
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: 'Faltan campos requeridos: nombre, email y mensaje' },
+        { status: 400 }
+      )
+    }
+
+    // Verify Turnstile token
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: 'Token de verificación requerido' },
+        { status: 400 }
+      )
+    }
+
+    const turnstileSecret = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
+    if (!turnstileSecret) {
+      return NextResponse.json(
+        { error: 'Configuración de verificación no disponible' },
+        { status: 500 }
+      )
+    }
+
+    // Verify the Turnstile token with Cloudflare
+    const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        secret: turnstileSecret,
+        response: turnstileToken,
+      }),
+    })
+
+    const turnstileResult = await turnstileResponse.json()
+    if (!turnstileResult.success) {
+      return NextResponse.json(
+        { error: 'Verificación de seguridad fallida' },
         { status: 400 }
       )
     }
@@ -50,8 +87,8 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: process.env.FROM_EMAIL || 'AdulTech <noreply@tu-dominio.com>',
-        to: [process.env.CONTACT_EMAIL || 'tu-email@ejemplo.com'],
+        from: process.env.FROM_EMAIL || 'AdulTech <onboarding@resend.dev>',
+        to: [process.env.CONTACT_EMAIL || 'anguelmiguel640@gmail.com'],
         subject: `Nuevo mensaje de contacto de ${name}`,
         html: emailContent,
         reply_to: email,
