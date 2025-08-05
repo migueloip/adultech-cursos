@@ -247,9 +247,22 @@ export default function ContactoPage() {
                   <div className="flex justify-center">
                     <Turnstile
                       siteKey="0x4AAAAAABoYJsi_L3gpLKr1"
-                      onSuccess={(token) => setTurnstileToken(token)}
-                      onError={() => setTurnstileToken(null)}
-                      onExpire={() => setTurnstileToken(null)}
+                      onSuccess={(token) => {
+                        console.log('Turnstile success:', token)
+                        setTurnstileToken(token)
+                      }}
+                      onError={(error) => {
+                        console.error('Turnstile error:', error)
+                        setTurnstileToken(null)
+                        setError('Error en la verificación de seguridad. Por favor, recarga la página.')
+                      }}
+                      onExpire={() => {
+                        console.log('Turnstile expired')
+                        setTurnstileToken(null)
+                      }}
+                      onLoad={() => console.log('Turnstile loaded')}
+                      theme="auto"
+                      size="normal"
                     />
                   </div>
 
