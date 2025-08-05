@@ -6,12 +6,12 @@ interface ContactFormData {
   phone?: string
   relationship?: string
   message: string
-  turnstileToken?: string
+  website?: string // Honeypot field
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone, relationship, message, turnstileToken }: ContactFormData = await request.json()
+    const { name, email, phone, relationship, message, website }: ContactFormData = await request.json()
 
     // Validate required fields
     if (!name || !email || !message) {
@@ -21,41 +21,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify Turnstile token
-    if (!turnstileToken) {
+    // Honeypot: si el campo 'website' tiene valor, es un bot
+    if (website && website.trim() !== '') {
+      console.log('Bot detectado por honeypot:', { website, ip: request.headers.get('x-forwarded-for') })
+      // Responder como si fuera exitoso para no alertar al bot
       return NextResponse.json(
-        { error: 'Token de verificación requerido' },
-        { status: 400 }
+        { message: 'Mensaje enviado correctamente' },
+        { status: 200 }
       )
     }
 
-    const turnstileSecret = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY
-    if (!turnstileSecret) {
-      return NextResponse.json(
-        { error: 'Configuración de verificación no disponible' },
-        { status: 500 }
-      )
-    }
-
-    // Verify the Turnstile token with Cloudflare
-    const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        secret: turnstileSecret,
-        response: turnstileToken,
-      }),
+    // Log de seguridad para monitoreo
+    console.log('Formulario de contacto enviado:', {
+      name,
+      email,
+      relationship,
+      timestamp: new Date().toISOString(),
+      ip: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent')
     })
-
-    const turnstileResult = await turnstileResponse.json()
-    if (!turnstileResult.success) {
-      return NextResponse.json(
-        { error: 'Verificación de seguridad fallida' },
-        { status: 400 }
-      )
-    }
 
     // Send email using Resend
     const resendApiKey = process.env.RESEND_API_KEY

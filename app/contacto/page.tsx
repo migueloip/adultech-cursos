@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Mail, Heart, Send } from "lucide-react"
 import { AccessibilityControls } from "@/components/accessibility-controls"
-import { Turnstile } from "@marsidev/react-turnstile"
+
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({
@@ -26,13 +26,14 @@ export default function ContactoPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [honeypot, setHoneypot] = useState<string>("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!turnstileToken) {
-      alert("Por favor, completa la verificación de seguridad.")
-      return
+    // Honeypot: si tiene valor, es un bot
+    if (honeypot) {
+      console.log("Bot detectado por honeypot")
+      return // Silenciosamente rechazar sin mostrar error
     }
 
     setIsLoading(true)
@@ -41,19 +42,19 @@ export default function ContactoPage() {
     try {
       // Enviar datos a la función Edge de Supabase
       const response = await fetch('/api/send-contact-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.nombre,
-          email: formData.email,
-          phone: formData.telefono,
-          relationship: formData.relacion,
-          message: formData.mensaje,
-          turnstileToken: turnstileToken,
-        }),
-      })
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.nombre,
+            email: formData.email,
+            phone: formData.telefono,
+            relationship: formData.relacion,
+            message: formData.mensaje,
+            website: honeypot, // Honeypot field
+          }),
+        })
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -244,28 +245,17 @@ export default function ContactoPage() {
                     />
                   </div>
 
-                  {/* Cloudflare Turnstile Captcha */}
-                  <div className="flex justify-center">
-                    <Turnstile
-                      siteKey="0x4AAAAAABoYJsi_L3gpLKr1"
-                      onSuccess={(token) => {
-                        console.log('Turnstile success:', token)
-                        setTurnstileToken(token)
-                      }}
-                      onError={(error) => {
-                        console.error('Turnstile error:', error)
-                        setTurnstileToken(null)
-                        setError('Error en la verificación de seguridad. Por favor, recarga la página.')
-                      }}
-                      onExpire={() => {
-                        console.log('Turnstile expired')
-                        setTurnstileToken(null)
-                      }}
-                      onLoad={() => console.log('Turnstile loaded')}
-                      options={{
-                        theme: "auto",
-                        size: "normal"
-                      }}
+                  {/* Honeypot para detectar bots - campo oculto */}
+                  <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+                    <Label htmlFor="website">Website (no llenar)</Label>
+                    <Input
+                      id="website"
+                      name="website"
+                      type="text"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
                     />
                   </div>
 
@@ -280,7 +270,7 @@ export default function ContactoPage() {
                     type="submit" 
                     size="lg" 
                     className="w-full text-xl py-6 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isLoading || !turnstileToken}
+                    disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
