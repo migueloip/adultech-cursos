@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   title: 'AdulTech Cursos',
   description: 'Created by: "Miguel Figueroa LBIC"',
   generator: 'Next.js',
+  icons: {
+    icon: '/images/adultech-logo.png',
+    shortcut: '/images/adultech-logo.png',
+    apple: '/images/adultech-logo.png',
+  },
 }
 
 export default function RootLayout({

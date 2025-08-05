@@ -58,7 +58,7 @@ export default function PreguntasPage() {
       {/* Header */}
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-orange-200 dark:border-slate-700">
         <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
+          <nav className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
               <Image
                 src="/images/adultech-logo.png"
@@ -67,17 +67,17 @@ export default function PreguntasPage() {
                 height={60}
                 className="rounded-lg"
               />
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
             </div>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600"
+              className="text-base sm:text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 w-full sm:w-auto"
             >
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Volver al Inicio
+              <Link href="/" className="flex items-center justify-center">
+                <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="whitespace-nowrap">Volver al Inicio</span>
               </Link>
             </Button>
           </nav>

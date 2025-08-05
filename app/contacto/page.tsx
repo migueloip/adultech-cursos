@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Mail, Heart, Send } from "lucide-react"
 import { AccessibilityControls } from "@/components/accessibility-controls"
+import { Turnstile } from "@marsidev/react-turnstile"
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({
@@ -23,11 +24,50 @@ export default function ContactoPage() {
     mensaje: "",
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Aquí iría la lógica para enviar el formulario
-    setIsSubmitted(true)
+    if (!turnstileToken) {
+      alert("Por favor, completa la verificación de seguridad.")
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      // Enviar datos a la función Edge de Supabase
+      const response = await fetch('/api/send-contact-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.nombre,
+          email: formData.email,
+          phone: formData.telefono,
+          relationship: formData.relacion,
+          message: formData.mensaje,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Error al enviar el mensaje')
+      }
+
+      const result = await response.json()
+      console.log('Email enviado:', result)
+      setIsSubmitted(true)
+    } catch (err) {
+      console.error('Error enviando formulario:', err)
+      setError(err instanceof Error ? err.message : 'Error desconocido')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -76,7 +116,7 @@ export default function ContactoPage() {
       {/* Header */}
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-orange-200 dark:border-slate-700">
         <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
+          <nav className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
               <Image
                 src="/images/adultech-logo.png"
@@ -85,17 +125,17 @@ export default function ContactoPage() {
                 height={60}
                 className="rounded-lg"
               />
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 dark:text-white">AdulTech Cursos</h1>
             </div>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600"
+              className="text-base sm:text-lg bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-600 w-full sm:w-auto"
             >
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-5 w-5" />
-                Volver al Inicio
+              <Link href="/" className="flex items-center justify-center">
+                <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="whitespace-nowrap">Volver al Inicio</span>
               </Link>
             </Button>
           </nav>
@@ -203,9 +243,40 @@ export default function ContactoPage() {
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full text-xl py-6 bg-green-600 hover:bg-green-700">
-                    <Send className="mr-3 h-6 w-6" />
-                    Enviar Mensaje
+                  {/* Cloudflare Turnstile Captcha */}
+                  <div className="flex justify-center">
+                    <Turnstile
+                      siteKey="0x4AAAAAABoYJsi_L3gpLKr1"
+                      onSuccess={(token) => setTurnstileToken(token)}
+                      onError={() => setTurnstileToken(null)}
+                      onExpire={() => setTurnstileToken(null)}
+                    />
+                  </div>
+
+                  {/* Error message */}
+                  {error && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                      <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
+                    </div>
+                  )}
+
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full text-xl py-6 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLoading || !turnstileToken}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="mr-3 h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-3 h-6 w-6" />
+                        Enviar Mensaje
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
