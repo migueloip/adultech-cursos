@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Type, Volume2, VolumeX, Sun, Moon } from "lucide-react"
+import { Accessibility, Volume2, VolumeX, Sun, Moon } from "lucide-react"
 
 export function AccessibilityControls() {
   const [fontSize, setFontSize] = useState("normal")
@@ -90,10 +90,10 @@ export function AccessibilityControls() {
     <div className="fixed bottom-6 right-6 z-50">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-full p-4 shadow-2xl border-2 border-white dark:border-slate-700 transform hover:scale-110 transition-all duration-300"
+        className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-full p-6 shadow-2xl border-2 border-white dark:border-slate-700 transform hover:scale-110 transition-all duration-300 w-16 h-16"
         size="lg"
       >
-        <Type className="h-6 w-6 text-white" />
+        <Accessibility className="h-28 w-28 text-white" />
       </Button>
 
       {isOpen && (

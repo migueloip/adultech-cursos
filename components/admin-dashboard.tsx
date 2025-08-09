@@ -224,22 +224,26 @@ export function AdminDashboard() {
     <div className="min-h-screen bg-slate-900 dark:bg-slate-950 text-white">
       {/* Header */}
       <header className="bg-slate-800 dark:bg-slate-900 border-b border-slate-700 dark:border-slate-600 p-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Image src="/images/adultech-logo.png" alt="AdulTech Logo" width={40} height={40} className="rounded-lg" />
-            <h1 className="text-2xl font-bold text-white">Panel de Administración</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button
-              asChild
-              variant="outline"
-              className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white"
-            >
-              <Link href="/">
-                <Home className="mr-2 h-4 w-4" />
-                Ir al Sitio
-              </Link>
-            </Button>
+        <div className="container mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <Image src="/images/adultech-logo.png" alt="AdulTech Logo" width={40} height={40} className="rounded-lg" />
+              <h1 className="text-xl sm:text-2xl font-bold text-white text-center sm:text-left">Panel de Administración</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white"
+              >
+                <Link href="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Ir al Sitio</span>
+                  <span className="sm:hidden">Inicio</span>
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -256,7 +260,7 @@ export function AdminDashboard() {
         </div>
       )}
 
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-4 sm:p-6">
         {/* Create/Edit Form */}
         {showCreateForm && (
           <Card className="mb-8 bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-600">
@@ -265,7 +269,7 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="titulo" className="text-white">
                       Título del Curso
@@ -408,17 +412,18 @@ export function AdminDashboard() {
 
                 {/* Pasos del Curso */}
                 <div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-4">
                     <Label className="text-white text-lg">Pasos del Curso</Label>
                     <Button
                       type="button"
                       onClick={addPaso}
                       variant="outline"
                       size="sm"
-                      className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white"
+                      className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white w-full sm:w-auto"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Agregar Paso
+                      <span className="hidden sm:inline">Agregar Paso</span>
+                      <span className="sm:hidden">Agregar</span>
                     </Button>
                   </div>
 
@@ -429,7 +434,7 @@ export function AdminDashboard() {
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-white font-medium">Paso {index + 1}</h4>
+                          <h4 className="text-white font-medium text-sm sm:text-base">Paso {index + 1}</h4>
                           {formData.pasos.length > 1 && (
                             <Button
                               type="button"
@@ -438,7 +443,7 @@ export function AdminDashboard() {
                               size="sm"
                               className="bg-transparent border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                           )}
                         </div>
@@ -477,23 +482,25 @@ export function AdminDashboard() {
                   ))}
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     type="submit"
                     disabled={loading || !isSupabaseConfigured}
-                    className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                    className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 w-full sm:w-auto"
                   >
                     <Save className="mr-2 h-4 w-4" />
-                    {editingCurso ? "Actualizar Curso" : "Crear Curso"}
+                    <span className="hidden sm:inline">{editingCurso ? "Actualizar Curso" : "Crear Curso"}</span>
+                    <span className="sm:hidden">{editingCurso ? "Actualizar" : "Crear"}</span>
                   </Button>
                   <Button
                     type="button"
                     onClick={() => setShowPreview(!showPreview)}
                     variant="outline"
-                    className="bg-transparent border-blue-600 text-blue-400 hover:bg-blue-600 hover:text-white"
+                    className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white w-full sm:w-auto"
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    {showPreview ? "Ocultar Preview" : "Ver Preview"}
+                    <span className="hidden sm:inline">{showPreview ? "Ocultar Preview" : "Ver Preview"}</span>
+                    <span className="sm:hidden">{showPreview ? "Ocultar" : "Preview"}</span>
                   </Button>
                   <Button
                     type="button"
@@ -512,7 +519,7 @@ export function AdminDashboard() {
                       })
                     }}
                     variant="outline"
-                    className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white"
+                    className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white w-full sm:w-auto"
                   >
                     <X className="mr-2 h-4 w-4" />
                     Cancelar
@@ -623,16 +630,18 @@ export function AdminDashboard() {
         )}
 
         {/* Header with Create Button */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-bold text-white">Gestión de Cursos</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Gestión de Cursos</h2>
           {!showCreateForm && (
             <Button
               onClick={() => setShowCreateForm(true)}
               disabled={!isSupabaseConfigured}
-              className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+              className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 w-full sm:w-auto"
+              size="sm"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Crear Nuevo Curso
+              <span className="hidden sm:inline">Crear Nuevo Curso</span>
+              <span className="sm:hidden">Crear Curso</span>
             </Button>
           )}
         </div>
@@ -641,35 +650,37 @@ export function AdminDashboard() {
         <div className="grid gap-6">
           {cursos.map((curso) => (
             <Card key={curso.id} className="bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-600">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-2">{curso.titulo}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{curso.titulo}</h3>
                     <p className="text-slate-300 dark:text-slate-400 mb-4">{curso.descripcion}</p>
-                    <div className="flex items-center space-x-4 text-sm text-slate-400 dark:text-slate-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-sm text-slate-400 dark:text-slate-500">
                       <span>Ícono: {curso.icono}</span>
-                      <span>Color: {curso.color}</span>
+                      <span className="hidden sm:inline">Color: {curso.color}</span>
                       <span>Creado: {new Date(curso.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 sm:flex-col sm:space-x-0 sm:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2">
                     <Button
                       onClick={() => handleEdit(curso)}
                       variant="outline"
                       size="sm"
                       disabled={!isSupabaseConfigured}
-                      className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white disabled:opacity-50"
+                      className="bg-transparent border-slate-600 text-white hover:bg-slate-700 hover:text-white disabled:opacity-50 flex-1 sm:flex-none"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4 sm:mr-0 lg:mr-2" />
+                      <span className="ml-2 sm:hidden lg:inline">Editar</span>
                     </Button>
                     <Button
                       onClick={() => handleDelete(curso.id)}
                       variant="outline"
                       size="sm"
                       disabled={!isSupabaseConfigured}
-                      className="bg-transparent border-red-600 text-red-400 hover:bg-red-600 hover:text-white disabled:opacity-50"
+                      className="bg-transparent border-red-600 text-red-400 hover:bg-red-600 hover:text-white disabled:opacity-50 flex-1 sm:flex-none"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 sm:mr-0 lg:mr-2" />
+                      <span className="ml-2 sm:hidden lg:inline">Eliminar</span>
                     </Button>
                   </div>
                 </div>
