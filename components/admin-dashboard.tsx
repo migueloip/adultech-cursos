@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Edit, Trash2, Save, X, Home, AlertTriangle, Eye } from "lucide-react"
-import { supabase, isSupabaseConfigured, cursosRespaldo, type Curso } from "@/lib/supabase"
+import { supabase, supabaseAdmin, isSupabaseConfigured, cursosRespaldo, type Curso } from "@/lib/supabase"
 
 export function AdminDashboard() {
   const [cursos, setCursos] = useState<Curso[]>([])
@@ -65,63 +65,99 @@ export function AdminDashboard() {
 
     try {
       let cursoData
+
       if (editingCurso) {
         // Actualizar curso existente
-        const { data, error } = await supabase
-          .from("cursos")
-          .update({
+        const response = await fetch('/api/admin/cursos', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            id: editingCurso.id,
             titulo: formData.titulo,
             descripcion: formData.descripcion,
             icono: formData.icono,
             color: formData.color,
             icon_color: formData.icon_color,
             video_url: formData.video_url,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", editingCurso.id)
-          .select()
-          .single()
+          }),
+        })
 
-        if (error) throw error
-        cursoData = data
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Error al actualizar el curso')
+        }
+        
+        const result = await response.json()
+        cursoData = result.data
       } else {
         // Crear nuevo curso
-        const { data, error } = await supabase
-          .from("cursos")
-          .insert({
+        const response = await fetch('/api/admin/cursos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
             titulo: formData.titulo,
             descripcion: formData.descripcion,
             icono: formData.icono,
             color: formData.color,
             icon_color: formData.icon_color,
             video_url: formData.video_url,
-          })
-          .select()
-          .single()
+          }),
+        })
 
-        if (error) throw error
-        cursoData = data
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Error al crear el curso')
+        }
+        
+        const result = await response.json()
+        cursoData = result.data
       }
 
-      // Eliminar pasos existentes si estamos editando
-      if (editingCurso) {
-        await supabase.from("curso_pasos").delete().eq("curso_id", editingCurso.id)
-      }
-
-      // Insertar nuevos pasos
+      // Manejar pasos del curso
       if (formData.pasos.length > 0 && formData.pasos[0].titulo) {
-        const pasosToInsert = formData.pasos.map((paso, index) => ({
-          curso_id: cursoData.id,
-          orden: index + 1,
+        const pasosToSend = formData.pasos.map((paso, index) => ({
           titulo: paso.titulo,
           descripcion: paso.descripcion,
           imagen_url:
             paso.imagen_url || `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(paso.titulo)}`,
         }))
 
-        const { error: pasosError } = await supabase.from("curso_pasos").insert(pasosToInsert)
+        const pasosResponse = await fetch('/api/admin/curso-pasos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            curso_id: cursoData.id,
+            pasos: pasosToSend,
+          }),
+        })
 
-        if (pasosError) throw pasosError
+        if (!pasosResponse.ok) {
+          const errorData = await pasosResponse.json()
+          throw new Error(errorData.error || 'Error al guardar los pasos del curso')
+        }
+      } else if (editingCurso) {
+        // Si no hay pasos y estamos editando, eliminar pasos existentes
+        const deleteResponse = await fetch(`/api/admin/curso-pasos?curso_id=${cursoData.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
+
+        if (!deleteResponse.ok) {
+          const errorData = await deleteResponse.json()
+          throw new Error(errorData.error || 'Error al eliminar los pasos del curso')
+        }
       }
 
       // Resetear formulario
@@ -139,7 +175,8 @@ export function AdminDashboard() {
       fetchCursos()
     } catch (error) {
       console.error("Error saving curso:", error)
-      alert("Error al guardar el curso")
+      const errorMessage = error instanceof Error ? error.message : "Error desconocido al guardar el curso"
+      alert(`Error al guardar el curso: ${errorMessage}`)
     }
     setLoading(false)
   }
@@ -180,13 +217,26 @@ export function AdminDashboard() {
     }
 
     if (confirm("¿Estás seguro de que quieres eliminar este curso?")) {
-      const { error } = await supabase.from("cursos").delete().eq("id", id)
+      try {
+        const response = await fetch(`/api/admin/cursos?id=${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
 
-      if (error) {
-        console.error("Error deleting curso:", error)
-        alert("Error al eliminar el curso")
-      } else {
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Error al eliminar el curso')
+        }
+        
         fetchCursos()
+        alert("Curso eliminado exitosamente")
+      } catch (error) {
+        console.error("Error deleting curso:", error)
+        const errorMessage = error instanceof Error ? error.message : "Error desconocido al eliminar el curso"
+        alert(`Error al eliminar el curso: ${errorMessage}`)
       }
     }
   }

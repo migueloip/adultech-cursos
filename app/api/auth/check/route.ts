@@ -1,22 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateAdminSession } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
-    // Verificar si existe la cookie de sesión
-    const sessionCookie = request.cookies.get('admin_session')
+    const session = validateAdminSession(request)
     
-    if (sessionCookie && sessionCookie.value === 'authenticated') {
-      return NextResponse.json(
-        { authenticated: true },
-        { status: 200 }
-      )
+    if (session) {
+      return NextResponse.json({
+        authenticated: true,
+        admin: {
+          id: session.adminId,
+          username: session.username
+        }
+      })
     } else {
-      return NextResponse.json(
-        { authenticated: false },
-        { status: 401 }
-      )
+      return NextResponse.json({
+        authenticated: false
+      })
     }
-  } catch (err) {
+  } catch (error) {
+    console.error('Error checking session:', error)
     return NextResponse.json(
       { authenticated: false, error: 'Error verificando sesión' },
       { status: 500 }

@@ -31,14 +31,26 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await bcrypt.compare(password, data.password_hash)
     
     if (isPasswordValid) {
-      // Crear respuesta con cookie de sesión
+      // Crear respuesta exitosa con cookie de sesión
       const response = NextResponse.json(
-        { success: true, message: 'Autenticación exitosa' },
+        { 
+          success: true, 
+          message: 'Autenticación exitosa',
+          admin: {
+            id: data.id,
+            username: data.username
+          }
+        },
         { status: 200 }
       )
       
-      // Establecer cookie de sesión (válida por 24 horas)
-      response.cookies.set('admin_session', 'authenticated', {
+      // Establecer cookie de sesión administrativa
+      response.cookies.set('admin_session', JSON.stringify({
+        authenticated: true,
+        adminId: data.id,
+        username: data.username,
+        timestamp: Date.now()
+      }), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

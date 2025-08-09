@@ -23,7 +23,9 @@ export default function AdminPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/auth/check')
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include'
+        })
         const result = await response.json()
         
         if (result.authenticated) {
@@ -51,6 +53,7 @@ export default function AdminPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           username: email,
           password: password,
@@ -74,7 +77,8 @@ export default function AdminPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
       })
       setIsAuthenticated(false)
       setEmail("")

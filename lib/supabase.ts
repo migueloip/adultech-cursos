@@ -1,48 +1,23 @@
 import { createClient } from "@supabase/supabase-js"
 
-// Verificar si las variables de entorno están disponibles
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Si no hay variables de entorno, usar configuración local/demo
-const isSupabaseConfigured = supabaseUrl && supabaseAnonKey
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
 
-let supabase: any = null
+// Cliente público para operaciones de lectura
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl!, supabaseAnonKey!)
+  : (() => {
+      console.warn("Supabase no está configurado. Usando datos de respaldo.")
+      return null as any
+    })()
 
-if (isSupabaseConfigured) {
-  supabase = createClient(supabaseUrl!, supabaseAnonKey!)
-} else {
-  console.warn("Supabase no configurado - usando datos de respaldo")
-  // Cliente mock para desarrollo local
-  supabase = {
-    from: () => ({
-      select: () => ({
-        order: () => Promise.resolve({ data: [], error: null }),
-        eq: () => ({
-          single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
-          order: () => Promise.resolve({ data: [], error: null }),
-        }),
-      }),
-      insert: () => ({
-        select: () => ({
-          single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
-        }),
-      }),
-      update: () => ({
-        eq: () => ({
-          select: () => ({
-            single: () => Promise.resolve({ data: null, error: { message: "No database" } }),
-          }),
-        }),
-      }),
-      delete: () => ({
-        eq: () => Promise.resolve({ error: null }),
-      }),
-    }),
-  }
-}
-
-export { supabase, isSupabaseConfigured }
+// Cliente administrativo con service role para operaciones de escritura
+export const supabaseAdmin = isSupabaseConfigured && supabaseServiceKey
+  ? createClient(supabaseUrl!, supabaseServiceKey!)
+  : supabase
 
 export type Curso = {
   id: number
