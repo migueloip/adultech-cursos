@@ -10,14 +10,6 @@ AdulTech Cursos es una aplicación web educativa especialmente diseñada para ay
 
 ## ✨ Características Principales
 
-### 🎯 Cursos Disponibles
-- **Cómo encender y apagar el teléfono** - Primeros pasos básicos
-- **Cómo hacer llamadas** - Comunicación telefónica
-- **Cómo enviar mensajes** - Mensajería de texto
-- **Cómo usar WhatsApp** - Comunicación moderna
-- **Cómo conectarse a Wi-Fi** - Acceso a internet
-- **Cómo usar la cámara** - Captura de momentos especiales
-
 ### ♿ Características de Accesibilidad
 - **Control de tamaño de fuente** (Normal, Grande, Extra Grande)
 - **Modo oscuro/claro** para mejor visibilidad
