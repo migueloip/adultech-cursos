@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Edit, Trash2, Save, X, Home, AlertTriangle, Eye } from "lucide-react"
 import { supabase, supabaseAdmin, isSupabaseConfigured, cursosRespaldo, type Curso } from "@/lib/supabase"
+import { processImageUrl } from "@/lib/image-utils"
 
 export function AdminDashboard() {
   const [cursos, setCursos] = useState<Curso[]>([])
@@ -125,7 +126,7 @@ export function AdminDashboard() {
           titulo: paso.titulo,
           descripcion: paso.descripcion,
           imagen_url:
-            paso.imagen_url || `/placeholder.svg?height=300&width=400&text=${encodeURIComponent(paso.titulo)}`,
+            processImageUrl(paso.imagen_url, paso.titulo),
         }))
 
         const pasosResponse = await fetch('/api/admin/curso-pasos', {

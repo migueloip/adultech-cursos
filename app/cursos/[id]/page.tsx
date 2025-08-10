@@ -8,6 +8,7 @@ import { ArrowLeft, RotateCcw, CheckCircle } from "lucide-react"
 import { AccessibilityControls } from "@/components/accessibility-controls"
 import { VideoPlayer } from "@/components/video-player"
 import { SpeechButton } from "@/components/speech-button"
+import { processImageUrl } from "@/lib/image-utils"
 import {
   supabase,
   isSupabaseConfigured,
@@ -231,7 +232,7 @@ export default function CursoPage({ params }: { params: Promise<{ id: string }> 
                       </div>
                       <div className="text-center order-first md:order-last">
                         <Image
-                          src={paso.imagen_url || "/placeholder.svg?height=300&width=400&text=Imagen+del+paso"}
+                          src={processImageUrl(paso.imagen_url, paso.titulo)}
                           alt={paso.titulo}
                           width={400}
                           height={300}
