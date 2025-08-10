@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Edit, Trash2, Save, X, Home, AlertTriangle, Eye } from "lucide-react"
 import { supabase, supabaseAdmin, isSupabaseConfigured, cursosRespaldo, type Curso } from "@/lib/supabase"
 import { processImageUrl } from "@/lib/image-utils"
+import { FileUpload } from "@/components/file-upload"
 
 export function AdminDashboard() {
   const [cursos, setCursos] = useState<Curso[]>([])
@@ -449,16 +450,31 @@ export function AdminDashboard() {
                 </div>
 
                 <div>
-                  <Label htmlFor="video_url" className="text-white">
-                    URL del Video (Opcional)
-                  </Label>
-                  <Input
-                    id="video_url"
-                    value={formData.video_url}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, video_url: e.target.value }))}
-                    className="bg-slate-700 dark:bg-slate-800 border-slate-600 dark:border-slate-500 text-white placeholder:text-slate-400"
-                    placeholder="https://ejemplo.com/video.mp4"
+                  <FileUpload
+                    type="video"
+                    label="Video del Curso (Opcional)"
+                    currentUrl={formData.video_url}
+                    onUploadComplete={(url) => setFormData((prev) => ({ ...prev, video_url: url }))}
+                    onUploadError={(error) => {
+                      console.error('Error uploading video:', error)
+                      alert('Error al subir el video: ' + error)
+                    }}
+                    className="w-full"
                   />
+                  
+                  {/* Campo de texto alternativo para URLs externas */}
+                  <div className="mt-4">
+                    <Label htmlFor="video_url_manual" className="text-white text-sm">
+                      O ingresa una URL externa (YouTube, etc.)
+                    </Label>
+                    <Input
+                      id="video_url_manual"
+                      value={formData.video_url}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, video_url: e.target.value }))}
+                      className="bg-slate-700 dark:bg-slate-800 border-slate-600 dark:border-slate-500 text-white placeholder:text-slate-400"
+                      placeholder="https://youtube.com/watch?v=... o https://ejemplo.com/video.mp4"
+                    />
+                  </div>
                 </div>
 
                 {/* Pasos del Curso */}
@@ -519,13 +535,30 @@ export function AdminDashboard() {
                             />
                           </div>
                           <div>
-                            <Label className="text-white">URL de Imagen (Opcional)</Label>
-                            <Input
-                              value={paso.imagen_url}
-                              onChange={(e) => updatePaso(index, "imagen_url", e.target.value)}
-                              className="bg-slate-600 dark:bg-slate-700 border-slate-500 dark:border-slate-400 text-white placeholder:text-slate-400"
-                              placeholder="https://ejemplo.com/imagen.jpg"
+                            <FileUpload
+                              type="image"
+                              label="Imagen del Paso (Opcional)"
+                              currentUrl={paso.imagen_url}
+                              onUploadComplete={(url) => updatePaso(index, "imagen_url", url)}
+                              onUploadError={(error) => {
+                                console.error('Error uploading image:', error)
+                                alert('Error al subir la imagen: ' + error)
+                              }}
+                              className="w-full"
                             />
+                            
+                            {/* Campo de texto alternativo para URLs externas */}
+                            <div className="mt-4">
+                              <Label className="text-white text-sm">
+                                O ingresa una URL externa
+                              </Label>
+                              <Input
+                                value={paso.imagen_url}
+                                onChange={(e) => updatePaso(index, "imagen_url", e.target.value)}
+                                className="bg-slate-600 dark:bg-slate-700 border-slate-500 dark:border-slate-400 text-white placeholder:text-slate-400"
+                                placeholder="https://ejemplo.com/imagen.jpg"
+                              />
+                            </div>
                           </div>
                         </div>
                       </CardContent>
