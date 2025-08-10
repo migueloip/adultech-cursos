@@ -97,13 +97,15 @@ export async function POST(request: NextRequest) {
       }
     ]
 
-    // Nota: Las políticas de RLS se deben configurar manualmente en el dashboard de Supabase
-    // o mediante SQL directo. Esta API route solo crea el bucket.
+    // Nota: Las políticas de RLS para storage deben configurarse manualmente
+    // en el dashboard de Supabase o usando el script SQL proporcionado
+    console.log('Storage bucket configured. RLS policies should be configured manually if needed.')
 
     return NextResponse.json({
       success: true,
       message: 'Storage bucket configured successfully',
-      bucket: mediaBucket ? 'exists' : 'created'
+      bucket: mediaBucket ? 'exists' : 'created',
+      note: 'If uploads still fail, you may need to configure RLS policies manually in Supabase dashboard'
     })
 
   } catch (error) {
