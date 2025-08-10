@@ -178,15 +178,17 @@ export default function CursoPage({ params }: { params: Promise<{ id: string }> 
             )}
           </div>
 
-          {/* Video Section */}
-          <Card className="mb-8 sm:mb-12 border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 mx-2 sm:mx-0">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center text-slate-800 dark:text-white">Video Tutorial</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <VideoPlayer courseId={id} videoUrl={curso.video_url} />
-            </CardContent>
-          </Card>
+          {/* Video Section - Solo mostrar si hay video_url */}
+          {curso.video_url && (
+            <Card className="mb-8 sm:mb-12 border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 mx-2 sm:mx-0">
+              <CardHeader>
+                <CardTitle className="text-2xl text-center text-slate-800 dark:text-white">Video Tutorial</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <VideoPlayer courseId={id} videoUrl={curso.video_url} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Steps Section */}
           {pasos.length > 0 && (
