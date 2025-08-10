@@ -210,6 +210,7 @@ export function FileUpload({
                 
                 {!isUploading && (
                   <Button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleRemoveFile()
@@ -262,9 +263,13 @@ export function FileUpload({
               </div>
               
               <Button
+                type="button"
                 variant="outline"
                 className="bg-transparent border-slate-600 text-white hover:bg-slate-700"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleButtonClick()
+                }}
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Seleccionar archivo
