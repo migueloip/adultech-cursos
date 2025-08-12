@@ -52,6 +52,8 @@ AdulTech Cursos es una aplicación web educativa especialmente diseñada para ay
 - **Almacenamiento local** - Persistencia de preferencias
 - **Formularios reactivos** - React Hook Form
 - **Validación** - Zod schemas
+- **API de Resend** - Los Correos de contacto se mandan con Resend
+- **Admin y fotos/videos** - Al crear o editar cursos acepta Links o subir videos/fotos propias
 
 ## 📁 Estructura del Proyecto
 
@@ -103,11 +105,7 @@ pnpm install
 ```
 
 3. **Configurar variables de entorno** (opcional)
-```bash
 # Crear archivo .env.local
-NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima
-```
 
 4. **Ejecutar en modo desarrollo**
 ```bash
@@ -131,13 +129,15 @@ Si deseas usar Supabase:
 2. Ejecutar los scripts SQL en `scripts/`:
    - `setup-database.sql` - Estructura de tablas
    - `insert-curso-editable.sql` - Datos de ejemplo
-3. Configurar variables de entorno
+3. Crear un bucket en supabase
+   - `Crea un bucket que se llame "media" y asignale los formatos de archivo que aceptara`
+4. Configurar variables de entorno
 
 **Nota:** La aplicación funciona sin base de datos usando datos de respaldo incluidos.
 
 ## 📖 Uso
 
-### Para Estudiantes
+### Para Adultos Mayores
 1. **Navegar a la página principal**
 2. **Explorar cursos disponibles** en la sección de cursos
 3. **Seleccionar un curso** de interés
@@ -180,11 +180,11 @@ Este proyecto está diseñado para ser educativo y accesible. Las contribuciones
 
 ## 📄 Licencia
 
-Este proyecto es de código abierto y está disponible bajo la licencia que determine el autor.
+Este proyecto es un proyecto para presentar en la competencia TP 21
 
 ## 👨‍💻 Autor
 
-**Miguel Figueroa LBIC**
+**Miguel Figueroa LBIC 4°G 2025**
 
 ## 📞 Soporte
 
