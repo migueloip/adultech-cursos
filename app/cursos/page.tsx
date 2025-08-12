@@ -76,10 +76,6 @@ async function getCursos(): Promise<CursoWithStepCount[]> {
 
 export default async function CursosPage() {
   const cursos = await getCursos()
-  
-  // Debug: Verificar cuántos cursos se están obteniendo
-  console.log('Número de cursos obtenidos:', cursos.length)
-  console.log('Cursos:', cursos.map(c => ({ id: c.id, titulo: c.titulo })))
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -133,8 +129,7 @@ export default async function CursosPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {cursos.map((curso, index) => {
-              console.log(`Renderizando curso ${index + 1}:`, curso.titulo)
+            {cursos.map((curso) => {
               const IconComponent = iconMap[curso.icono as keyof typeof iconMap] || Smartphone
               return (
                 <Card

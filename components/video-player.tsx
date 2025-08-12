@@ -27,6 +27,23 @@ export function VideoPlayer({ courseId, videoUrl }: VideoPlayerProps) {
   const [isYouTube, setIsYouTube] = useState(false)
   const [youtubeId, setYoutubeId] = useState<string | null>(null)
   const [youtubeReady, setYoutubeReady] = useState(false)
+  const [videoAspectRatio, setVideoAspectRatio] = useState<string>('aspect-video')
+  const [videoDimensions, setVideoDimensions] = useState<{width: number, height: number} | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detectar tipo de dispositivo
+  useEffect(() => {
+    const checkDevice = () => {
+      // Detectar si es móvil basado en el ancho de pantalla y user agent
+      const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(isMobileDevice)
+    }
+    
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    
+    return () => window.removeEventListener('resize', checkDevice)
+  }, [])
 
   // Detectar si es video de YouTube
   useEffect(() => {
@@ -84,6 +101,63 @@ export function VideoPlayer({ courseId, videoUrl }: VideoPlayerProps) {
     }
   }, [youtubeReady, youtubeId])
 
+  // Función para calcular el aspect ratio basado en las dimensiones del video
+  const calculateAspectRatio = (width: number, height: number) => {
+    const ratio = width / height
+    
+    // Si es video vertical (más alto que ancho)
+    if (ratio < 0.8) {
+      return 'aspect-[9/16]' // Formato vertical típico de teléfonos
+    }
+    // Si es video cuadrado o casi cuadrado
+    else if (ratio >= 0.8 && ratio <= 1.2) {
+      return 'aspect-square'
+    }
+    // Si es video horizontal estándar
+    else if (ratio > 1.2 && ratio <= 1.8) {
+      return 'aspect-video' // 16:9 estándar
+    }
+    // Si es video muy ancho (ultrawide)
+    else {
+      return 'aspect-[21/9]'
+    }
+  }
+
+  // Función para obtener el tamaño máximo del contenedor según el dispositivo
+  const getMaxContainerSize = () => {
+    if (isMobile) {
+      // En móviles, permitir que use todo el ancho disponible
+      return 'max-w-full'
+    } else {
+      // En laptops/desktop, limitar el tamaño para que no sobrepase la pantalla
+      // Usar diferentes tamaños según la orientación del video
+      if (videoDimensions) {
+        const ratio = videoDimensions.width / videoDimensions.height
+        if (ratio < 0.8) {
+          // Videos verticales: tamaño más pequeño en desktop
+          return 'max-w-md'
+        } else if (ratio >= 0.8 && ratio <= 1.2) {
+          // Videos cuadrados: tamaño medio
+          return 'max-w-lg'
+        } else {
+          // Videos horizontales: tamaño estándar
+          return 'max-w-2xl'
+        }
+      }
+      return 'max-w-2xl' // Tamaño por defecto
+    }
+  }
+
+  // Detectar dimensiones del video cuando se carga
+  const handleVideoLoadedMetadata = () => {
+    if (videoRef.current) {
+      const { videoWidth, videoHeight } = videoRef.current
+      setVideoDimensions({ width: videoWidth, height: videoHeight })
+      const newAspectRatio = calculateAspectRatio(videoWidth, videoHeight)
+      setVideoAspectRatio(newAspectRatio)
+    }
+  }
+
   const handlePlayPause = async () => {
     if (isYouTube && youtubePlayerRef.current) {
       // Control para YouTube
@@ -135,8 +209,8 @@ export function VideoPlayer({ courseId, videoUrl }: VideoPlayerProps) {
       <div className="relative">
         {videoUrl ? (
           isYouTube && youtubeId ? (
-            // YouTube Player
-            <div className="aspect-video">
+            // YouTube Player - mantiene aspect-video por defecto ya que no podemos detectar dimensiones
+            <div className={`aspect-video ${getMaxContainerSize()} mx-auto`}>
               <iframe
                 ref={iframeRef}
                 className="w-full h-full"
@@ -148,29 +222,33 @@ export function VideoPlayer({ courseId, videoUrl }: VideoPlayerProps) {
               />
             </div>
           ) : (
-            // Video Local
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              className="w-full aspect-video"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onVolumeChange={() => setIsMuted(videoRef.current?.muted || false)}
-              controls={false} // Controlamos los controles manualmente
-              muted={isMuted}
-              preload="metadata" // Carga metadatos pero no reproduce automáticamente
-            >
-              Tu navegador no soporta la etiqueta de video.
-            </video>
+            // Video Local con aspect ratio dinámico
+            <div className={`${videoAspectRatio} ${getMaxContainerSize()} mx-auto`}>
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                className="w-full h-full object-contain"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onVolumeChange={() => setIsMuted(videoRef.current?.muted || false)}
+                onLoadedMetadata={handleVideoLoadedMetadata}
+                controls={false} // Controlamos los controles manualmente
+                muted={isMuted}
+                preload="metadata" // Carga metadatos pero no reproduce automáticamente
+              >
+                Tu navegador no soporta la etiqueta de video.
+              </video>
+            </div>
           )
         ) : (
           // Video Placeholder si no hay URL
-          <div className="aspect-video bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 flex items-center justify-center">
-            <div className="text-center text-white">
+          <div className={`aspect-video ${getMaxContainerSize()} mx-auto bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 flex items-center justify-center`}>
+            <div className="text-center text-white px-4">
               <div className="text-6xl mb-4">📱</div>
               <h4 className="text-2xl font-bold mb-2">Video Tutorial</h4>
               <p className="text-lg opacity-80">Curso {courseId}: Aprende paso a paso</p>
               <p className="text-sm opacity-60 mt-2">Video no disponible</p>
+              <p className="text-xs opacity-50 mt-4">El reproductor se adapta automáticamente a videos verticales y horizontales</p>
             </div>
           </div>
         )}
@@ -200,8 +278,17 @@ export function VideoPlayer({ courseId, videoUrl }: VideoPlayerProps) {
             </Button>
           </div>
 
-          <div className="text-white text-base sm:text-lg font-medium">
-            {isYouTube && !youtubeReady ? "Cargando..." : (isPlaying ? "Reproduciendo..." : "Pausado")}
+          <div className="text-white text-base sm:text-lg font-medium text-center sm:text-right">
+            <div>
+              {isYouTube && !youtubeReady ? "Cargando..." : (isPlaying ? "Reproduciendo..." : "Pausado")}
+            </div>
+            {videoDimensions && !isYouTube && (
+              <div className="text-sm text-slate-300 mt-1">
+                {videoDimensions.width}×{videoDimensions.height} 
+                {videoDimensions.width < videoDimensions.height ? "(Vertical)" : 
+                 videoDimensions.width === videoDimensions.height ? "(Cuadrado)" : "(Horizontal)"}
+              </div>
+            )}
           </div>
         </div>
       </div>
