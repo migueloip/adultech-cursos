@@ -180,11 +180,11 @@ Este proyecto está diseñado para ser educativo y accesible. Las contribuciones
 
 ## 📄 Licencia
 
-Este proyecto es de código abierto y está disponible bajo la licencia que determine el autor.
+Este proyecto es un proyecto para presentar en la competencia TP 21
 
 ## 👨‍💻 Autor
 
-**Miguel Figueroa LBIC**
+**Miguel Figueroa LBIC 4°G 2025**
 
 ## 📞 Soporte
 
