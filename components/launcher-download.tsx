@@ -20,14 +20,14 @@ interface GitHubRelease {
 
 // Fallback release data when GitHub API is unavailable
 const FALLBACK_RELEASE: GitHubRelease = {
-  tag_name: "v1.0.0",
-  name: "AdulTech Launcher v1.0.0",
-  published_at: "2024-01-01T00:00:00Z",
+  tag_name: "latest",
+  name: "AdulTech Launcher (Última versión)",
+  published_at: new Date().toISOString(),
   assets: [
     {
-      name: "adultech-launcher.apk",
-      browser_download_url: "https://github.com/migueloip/adultech_launcher-original/releases/latest/download/adultech-launcher.apk",
-      size: 25000000
+      name: "app-release.apk",
+      browser_download_url: "https://github.com/migueloip/adultech_launcher-original/releases/latest/download/app-release.apk",
+      size: 22478848
     }
   ]
 }
@@ -98,23 +98,33 @@ export function LauncherDownload() {
   const handleDownload = async () => {
     if (!latestRelease) return
     
-    // Buscar el archivo APK en los assets
-    const apkAsset = latestRelease.assets.find(asset => 
-      asset.name.toLowerCase().endsWith('.apk')
-    )
-    
-    if (!apkAsset) {
-      toast.error('No se encontró el archivo APK en la release')
-      return
-    }
-    
     setIsDownloading(true)
     
     try {
+      // Buscar el archivo APK en los assets
+      const apkAsset = latestRelease.assets.find(asset => 
+        asset.name.toLowerCase().includes('.apk')
+      )
+      
+      if (!apkAsset) {
+        toast.error('No se encontró el archivo APK')
+        return
+      }
+      
+      // Usar siempre la URL de la última versión con el nombre correcto del archivo
+      const downloadUrl = usingFallback 
+        ? 'https://github.com/migueloip/adultech_launcher-original/releases/latest/download/app-release.apk'
+        : apkAsset.browser_download_url
+      
+      if (!downloadUrl) {
+        toast.error('URL de descarga no disponible')
+        return
+      }
+      
       // Crear un enlace temporal para descargar
       const link = document.createElement('a')
-      link.href = apkAsset.browser_download_url
-      link.download = apkAsset.name
+      link.href = downloadUrl
+      link.download = 'app-release.apk'
       link.target = '_blank'
       
       // Agregar al DOM, hacer clic y remover
@@ -122,7 +132,7 @@ export function LauncherDownload() {
       link.click()
       document.body.removeChild(link)
       
-      toast.success('¡Descarga iniciada! Revisa tu carpeta de descargas')
+      toast.success('¡Descarga iniciada! Siempre obtienes la versión más reciente')
     } catch (err) {
       console.error('Error downloading:', err)
       toast.error('Error al iniciar la descarga')
