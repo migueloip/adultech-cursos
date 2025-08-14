@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Accessibility, Volume2, VolumeX, Sun, Moon } from "lucide-react"
@@ -12,16 +12,22 @@ export function AccessibilityControls() {
   const [speechEnabled, setSpeechEnabled] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Cargar configuraciones desde localStorage al montar el componente
   useEffect(() => {
-    const savedFontSize = localStorage.getItem("adultech-font-size") || "normal"
-    const savedSpeechEnabled = localStorage.getItem("adultech-speech-enabled") === "true"
-    const savedDarkMode = localStorage.getItem("adultech-dark-mode") === "true"
+    setIsMounted(true)
+    
+    if (typeof window !== 'undefined') {
+      const savedFontSize = localStorage.getItem("adultech-font-size") || "normal"
+      const savedSpeechEnabled = localStorage.getItem("adultech-speech-enabled") === "true"
+      const savedDarkMode = localStorage.getItem("adultech-dark-mode") === "true"
 
-    setFontSize(savedFontSize)
-    setSpeechEnabled(savedSpeechEnabled)
-    setDarkMode(savedDarkMode)
+      setFontSize(savedFontSize)
+      setSpeechEnabled(savedSpeechEnabled)
+      setDarkMode(savedDarkMode)
+    }
   }, [])
 
   // Aplicar tamaño de fuente
@@ -86,8 +92,38 @@ export function AccessibilityControls() {
     }
   }, [speechEnabled])
 
+  // Cerrar el panel cuando se hace clic fuera de él
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="bg-blue-600 text-white rounded-full p-6 shadow-2xl border-2 border-white dark:border-slate-700 w-16 h-16 flex items-center justify-center">
+          <div className="h-6 w-6 bg-white/30 rounded animate-pulse" />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div ref={containerRef} className="fixed bottom-6 right-6 z-50">
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-full p-6 shadow-2xl border-2 border-white dark:border-slate-700 transform hover:scale-110 transition-all duration-300 w-16 h-16"
@@ -97,7 +133,7 @@ export function AccessibilityControls() {
       </Button>
 
       {isOpen && (
-        <Card className="absolute bottom-16 right-0 w-64 border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 shadow-xl">
+        <Card className="absolute bottom-16 right-0 w-64 sm:w-72 border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 shadow-xl max-w-[calc(100vw-3rem)] overflow-hidden">
           <CardContent className="p-4">
             <h4 className="font-bold text-lg mb-4 text-slate-800 dark:text-white">Accesibilidad</h4>
 

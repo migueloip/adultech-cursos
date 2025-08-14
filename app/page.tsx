@@ -3,13 +3,14 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { BookOpen, Heart, Users, Zap, ArrowRight } from "lucide-react"
-import { AccessibilityControls } from "@/components/accessibility-controls"
+import { LauncherDownload } from '@/components/launcher-download'
+import { AccessibilityControls } from '@/components/accessibility-controls'
+import { OfflineIndicator } from '@/components/offline-indicator'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
       <AccessibilityControls />
-
       {/* Header */}
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-orange-200 dark:border-slate-700 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
@@ -144,6 +145,40 @@ export default function HomePage() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Offline Support Section */}
+      <section className="py-16 bg-slate-50 dark:bg-slate-900/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-6">
+              Aprende sin Internet
+            </h3>
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Descarga los cursos y accede a ellos en cualquier momento, incluso sin conexión a internet.
+            </p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <OfflineIndicator />
+          </div>
+        </div>
+      </section>
+
+      {/* Launcher Download Section */}
+      <section className="py-16 bg-white dark:bg-slate-800">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-6">
+              Simplifica tu Teléfono
+            </h3>
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Transforma tu Android en una interfaz súper fácil de usar con nuestro launcher especial.
+            </p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <LauncherDownload />
           </div>
         </div>
       </section>
