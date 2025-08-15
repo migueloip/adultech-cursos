@@ -178,7 +178,7 @@ Este proyecto está diseñado para ser educativo y accesible. Las contribuciones
 - Correcciones de bugs
 - Documentación adicional
 
-## 📄 Licencia
+## 📄 ¿Por que?
 
 Este proyecto es un proyecto para presentar en la competencia TP 21
 
