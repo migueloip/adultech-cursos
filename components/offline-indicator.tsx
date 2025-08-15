@@ -180,10 +180,10 @@ export function OfflineIndicator({ courseId, courseData, showDownloadButton = fa
           <CardContent className="p-4">
             <div className="text-center">
               <h4 className="font-medium text-slate-800 dark:text-white mb-2">
-                💡 ¿Sabías que puedes instalar AdulTech?
+                💡 ¿Sabías que puedes instalar AdulTech cursos web?
               </h4>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Instala la aplicación en tu teléfono para acceder más fácilmente.
+                Instala el acceso directo de AdulTech cursos web en tu teléfono para acceder más fácilmente.
                 Busca el botón "Agregar a pantalla de inicio" en tu navegador.
               </p>
             </div>
